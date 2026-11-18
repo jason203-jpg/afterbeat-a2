@@ -22,6 +22,7 @@ async function main() {
     const text = selector => page.locator(selector).textContent();
     const waitForStatus = value => page.getByText(value, { exact: true }).waitFor();
     const track = async expected => assert.equal(await text('#track-title'), expected);
+    const queueTitles = () => page.locator('#queue li strong').allTextContents();
     const photo = async name => {
       if (figures) await page.screenshot({ path: path.join(figures, name + '.png'), animations: 'disabled' });
     };
@@ -67,7 +68,8 @@ async function main() {
     await photo('b1-saved');
     await button('New session').click();
     await track('Paper Moon');
-    assert.equal(await page.locator('#queue li').last().locator('strong').innerText(), 'Glass Hour');
+    const scopedQueue = await queueTitles();
+    assert.equal(scopedQueue.at(-1), 'Glass Hour');
     await photo('b2-ranked');
     await page.reload();
     await track('Paper Moon');
@@ -85,6 +87,10 @@ async function main() {
     await track('Glass Hour');
     assert.equal(await text('#saved-tracks'), 'None');
     await photo('c3-undo');
+    await button('Dislike').click();
+    await button('New session').click();
+    await track('Paper Moon');
+    assert.deepEqual(await queueTitles(), scopedQueue);
     await radio('Two choices').click();
     await track('Paper Moon');
     assert.equal(await text('#saved-tracks'), 'Glass Hour');
@@ -97,9 +103,10 @@ async function main() {
     await track('Glass Hour');
 
     for (let i = 0; i < 6; i++) {
+      const hiddenTitle = await text('#track-title');
       await button('Feedback').click();
       await page.getByRole('button', { name: /Not now/ }).click();
-      await page.getByText(/is hidden for this session/).waitFor();
+      await waitForStatus(`${hiddenTitle} is hidden for this session.`);
     }
     await track('Session complete');
     await button('Undo').click();
