@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6f3eb">
+  <title>Afterbeat | Listening prototype</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="engine.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <header class="masthead">
+    <div class="masthead-inner">
+      <div class="brand"><span class="brand-mark" aria-hidden="true">♪</span>Afterbeat</div>
+      <button id="new-session" class="subtle">New session</button>
+    </div>
+  </header>
+  <main>
+    <div class="intro">
+      <p id="session" class="eyebrow"></p>
+      <h1>Listening room</h1>
+      <fieldset class="versions">
+        <legend class="sr-only">Feedback version</legend>
+        <label><input type="radio" name="version" value="scoped" checked><span>Two choices</span></label>
+        <label><input type="radio" name="version" value="baseline"><span>Single dislike</span></label>
+      </fieldset>
+    </div>
+    <div class="layout">
+      <section class="panel player" aria-labelledby="player-label">
+        <div id="art" class="art" aria-hidden="true"><span></span></div>
+        <div class="player-body">
+          <p id="player-label" class="eyebrow">Current recommendation</p>
+          <h2 id="track-title" tabindex="-1"></h2>
+          <p id="track-meta"></p>
+          <div id="controls" class="controls">
+            <button id="preview" class="subtle">Play demo clip</button>
+            <button id="skip" class="subtle">Skip</button>
+            <button id="feedback" class="primary">Feedback</button>
+          </div>
+          <div class="feedback-status">
+            <p id="status" role="status" aria-atomic="true"></p>
+            <button id="undo" class="subtle" hidden>Undo</button>
+          </div>
+        </div>
+      </section>
+      <section class="panel queue" aria-labelledby="queue-title">
+        <div class="queue-heading">
+          <h2 id="queue-title">Up next</h2>
+          <span id="queue-count" class="queue-count"></span>
+        </div>
+        <ol id="queue"></ol>
+        <p id="queue-empty" class="muted" hidden></p>
+        <details id="memory">
+          <summary>Feedback history</summary>
+          <p class="history-label">Hidden this session</p>
+          <p id="hidden-tracks" class="muted"></p>
+          <p class="history-label">Down-ranked in future sessions</p>
+          <p id="saved-tracks" class="muted"></p>
+        </details>
+        <p id="storage-note" class="muted" role="status" hidden>Browser storage is unavailable. Saved feedback will last until this page closes or reloads.</p>
+      </section>
+    </div>
+    <footer>
+      <p>Demo catalogue · Synthesised audio clips</p>
+      <button id="reset" class="text-button">Reset demo</button>
+    </footer>
+  </main>
+  <dialog id="feedback-dialog" aria-labelledby="dialog-title" aria-describedby="dialog-track">
+    <form method="dialog">
+      <h2 id="dialog-title">What should change?</h2>
+      <p id="dialog-track"></p>
+      <button value="later" class="choice">
+        <strong>Not now</strong><span>Hide this track for this session.</span>
+      </button>
+      <button value="less" class="choice">
+        <strong>Recommend less</strong><span>Move this track lower in future recommendations.</span>
+      </button>
+      <button value="cancel" class="subtle cancel" autofocus>Cancel</button>
+    </form>
+  </dialog>
+</body>
+</html>
