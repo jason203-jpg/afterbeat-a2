@@ -54,7 +54,7 @@ h2 { letter-spacing: -.035em; line-height: 1.15; }
   clip-path: inset(50%);
   white-space: nowrap;
 }
-.versions span { display: grid; place-items: center; min-height: 37px; padding: 6px 12px; border-radius: 8px; cursor: pointer; color: #42515a; font-size: .82rem; font-weight: 700; white-space: nowrap; }
+.versions span { display: grid; place-items: center; min-height: 44px; padding: 6px 11px; border-radius: 8px; cursor: pointer; color: #42515a; font-size: .82rem; font-weight: 700; white-space: nowrap; }
 .versions input:checked + span { color: var(--ink); background: var(--panel); box-shadow: 0 1px 3px #30302a20; }
 
 .layout { display: grid; grid-template-columns: minmax(0, 1.24fr) minmax(0, 1fr); gap: 18px; align-items: start; }
@@ -143,8 +143,9 @@ dialog::backdrop { background: #20293688; }
   .masthead-inner, main { padding-inline: 15px; }
   .masthead-inner { min-height: 58px; }
   main { padding-top: 19px; }
-  .intro { grid-template-columns: 1fr; row-gap: 7px; margin-bottom: 14px; }
-  .versions { margin-top: 3px; }
+  .intro { grid-template-columns: minmax(0, 1fr); row-gap: 7px; margin-bottom: 14px; }
+  .versions { margin-top: 3px; flex-wrap: wrap; }
+  .versions span { padding-inline: 8px; }
   .layout { grid-template-columns: minmax(0, 1fr); gap: 12px; }
   .art { height: 120px; }
   .art span { width: 92px; }

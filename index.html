@@ -7,6 +7,7 @@
   <title>Afterbeat | Listening prototype</title>
   <link rel="stylesheet" href="styles.css">
   <script src="engine.js" defer></script>
+  <script src="music.js" defer></script>
   <script src="app.js" defer></script>
 </head>
 <body>
@@ -24,6 +25,7 @@
         <legend class="sr-only">Feedback version</legend>
         <label><input type="radio" name="version" value="scoped" checked><span>Two choices</span></label>
         <label><input type="radio" name="version" value="baseline"><span>Single dislike</span></label>
+        <label><input type="radio" name="version" value="targeted"><span>Track or style</span></label>
       </fieldset>
     </div>
     <div class="layout">
@@ -55,14 +57,18 @@
           <summary>Feedback history</summary>
           <p class="history-label">Hidden this session</p>
           <p id="hidden-tracks" class="muted"></p>
-          <p class="history-label">Down-ranked in future sessions</p>
+          <p class="history-label">Individually down-ranked tracks</p>
           <p id="saved-tracks" class="muted"></p>
+          <div id="style-history" hidden>
+            <p class="history-label">Down-ranked styles</p>
+            <p id="saved-styles" class="muted"></p>
+          </div>
         </details>
         <p id="storage-note" class="muted" role="status" hidden>Browser storage is unavailable. Saved feedback will last until this page closes or reloads.</p>
       </section>
     </div>
     <footer>
-      <p>Demo catalogue · Synthesised audio clips</p>
+      <p>Demo catalogue · Original music previews</p>
       <button id="reset" class="text-button">Reset demo</button>
     </footer>
   </main>
@@ -74,7 +80,10 @@
         <strong>Not now</strong><span>Hide this track for this session.</span>
       </button>
       <button value="less" class="choice">
-        <strong>Recommend less</strong><span>Move this track lower in future recommendations.</span>
+        <strong id="less-label">Recommend less</strong><span>Move this track lower in future recommendations.</span>
+      </button>
+      <button value="less-style" id="style-choice" class="choice" hidden>
+        <strong>Recommend less of this style</strong><span id="style-effect"></span>
       </button>
       <button value="cancel" class="subtle cancel" autofocus>Cancel</button>
     </form>

@@ -2,10 +2,11 @@ const { tracks, loadProfile, rank, start, apply } = window.Afterbeat;
 const $ = id => document.getElementById(id);
 const storageKey = 'afterbeat-feedback-v1';
 const lookup = new Map(tracks.map(track => [track.id, track]));
+const versionNames = { scoped: 'Two choices', baseline: 'Single dislike', targeted: 'Track or style' };
 let mode = 'scoped';
 let profiles = loadProfile();
 let audio;
-let audioNodes = [];
+let activeClip;
 let audioTimer;
 let audioGeneration = 0;
 let previewActive = false;
@@ -20,7 +21,7 @@ try {
 let state = start(profiles[mode]);
 
 function saveProfile() {
-  profiles[mode] = state.saved;
+  profiles[mode] = state.profile;
   try {
     localStorage.setItem(storageKey, JSON.stringify(profiles));
   } catch {
@@ -34,7 +35,7 @@ function showStatus(text) {
 
 function renderQueue() {
   const excluded = state.current ? [...state.seen, state.current] : state.seen;
-  const queue = rank(state.saved, state.hidden, excluded);
+  const queue = rank(state.profile, state.hidden, excluded);
   $('queue').replaceChildren(...queue.map(track => {
     const item = document.createElement('li');
     const swatch = document.createElement('span');
@@ -43,14 +44,14 @@ function renderQueue() {
     const name = document.createElement('strong');
     name.textContent = track.title;
     const artist = document.createElement('small');
-    artist.textContent = track.artist;
+    artist.textContent = mode === 'targeted' ? `${track.artist} · ${track.style}` : track.artist;
     const text = document.createElement('span');
     text.append(name, artist);
     item.append(swatch, text);
-    if (state.saved.includes(track.id)) {
+    if (track.trackFlag || track.styleFlag) {
       const tag = document.createElement('span');
       tag.className = 'queue-tag';
-      tag.textContent = 'Down-ranked';
+      tag.textContent = track.styleFlag ? 'Style down-ranked' : 'Down-ranked';
       item.append(tag);
     }
     return item;
@@ -60,7 +61,9 @@ function renderQueue() {
   $('queue-empty').textContent = state.current ? 'End of this queue rotation.' : 'No tracks are eligible this session.';
   const list = ids => ids.map(id => lookup.get(id).title).join(', ') || 'None';
   $('hidden-tracks').textContent = list(state.hidden);
-  $('saved-tracks').textContent = list(state.saved);
+  $('saved-tracks').textContent = list(state.profile.tracks);
+  $('style-history').hidden = mode !== 'targeted';
+  $('saved-styles').textContent = state.profile.styles.join(', ') || 'None';
 }
 
 function render() {
@@ -70,18 +73,15 @@ function render() {
   $('track-meta').textContent = track ? `${track.artist} · ${track.style}` : 'Start a new session to hear recommendations again.';
   $('art').className = `art ${track?.colour ?? 'sage'}`;
   $('controls').hidden = !track;
-  $('feedback').textContent = mode === 'scoped' ? 'Feedback' : 'Dislike';
+  $('feedback').textContent = mode === 'baseline' ? 'Dislike' : 'Feedback';
   $('undo').hidden = !state.undo;
   renderQueue();
 }
 
 function stopPreview() {
   audioGeneration++;
-  for (const node of audioNodes) {
-    node.stop();
-    node.disconnect();
-  }
-  audioNodes = [];
+  activeClip?.stop();
+  activeClip = undefined;
   clearTimeout(audioTimer);
   previewActive = false;
   $('preview').textContent = 'Play demo clip';
@@ -101,23 +101,8 @@ async function playPreview() {
     audio ??= new AudioContext();
     await audio.resume();
     if (generation !== audioGeneration) return;
-    const startTime = audio.currentTime + 0.04;
-    track.notes.forEach((note, index) => {
-      const onset = startTime + index * 0.41;
-      const oscillator = audio.createOscillator();
-      const envelope = audio.createGain();
-      oscillator.type = index % 2 ? 'sine' : 'triangle';
-      oscillator.frequency.value = 440 * 2 ** ((note - 69) / 12);
-      envelope.gain.setValueAtTime(0.001, onset);
-      envelope.gain.exponentialRampToValueAtTime(0.12, onset + 0.045);
-      envelope.gain.exponentialRampToValueAtTime(0.001, onset + 0.67);
-      oscillator.connect(envelope).connect(audio.destination);
-      oscillator.onended = () => envelope.disconnect();
-      oscillator.start(onset);
-      oscillator.stop(onset + 0.68);
-      audioNodes.push(oscillator);
-    });
-    audioTimer = setTimeout(stopPreview, 3650);
+    activeClip = window.AfterbeatMusic.schedule(audio, track);
+    audioTimer = setTimeout(stopPreview, Math.ceil(1000 * activeClip.duration));
   } catch {
     if (generation === audioGeneration) {
       stopPreview();
@@ -130,11 +115,12 @@ function act(action) {
   const track = lookup.get(state.current);
   stopPreview();
   state = apply(state, action);
-  if (['less', 'dislike', 'undo'].includes(action)) saveProfile();
+  if (['less', 'less-style', 'dislike', 'undo'].includes(action)) saveProfile();
   render();
   const messages = {
     later: () => `${track.title} is hidden for this session.`,
     less: () => `${track.title} will rank lower in future sessions.`,
+    'less-style': () => `${track.style} tracks will rank lower in future sessions.`,
     dislike: () => `Disliked ${track.title}. It will rank lower in future sessions.`,
     skip: () => `Skipped ${track.title}. No feedback saved.`,
     undo: () => `Feedback undone. ${lookup.get(state.current).title} is back.`,
@@ -154,13 +140,17 @@ $('feedback').addEventListener('click', () => {
     return;
   }
   const dialog = $('feedback-dialog');
-  $('dialog-track').textContent = lookup.get(state.current).title;
+  const track = lookup.get(state.current);
+  $('dialog-track').textContent = mode === 'targeted' ? `${track.title} · ${track.style}` : track.title;
+  $('less-label').textContent = mode === 'targeted' ? 'Recommend less of this track' : 'Recommend less';
+  $('style-choice').hidden = mode !== 'targeted';
+  $('style-effect').textContent = `Move all ${track.style} tracks lower in future recommendations.`;
   dialog.returnValue = 'cancel';
   dialog.showModal();
 });
 $('feedback-dialog').addEventListener('close', event => {
   const action = event.target.returnValue;
-  if (action === 'later' || action === 'less') act(action);
+  if (['later', 'less', 'less-style'].includes(action)) act(action);
 });
 document.querySelectorAll('[name="version"]').forEach(input => {
   input.addEventListener('change', () => {
@@ -169,7 +159,7 @@ document.querySelectorAll('[name="version"]').forEach(input => {
     mode = input.value;
     state = start(profiles[mode]);
     render();
-    showStatus(`${mode === 'scoped' ? 'Two choices' : 'Single dislike'} loaded with its own feedback history.`);
+    showStatus(`${versionNames[mode]} loaded with its own feedback history.`);
   });
 });
 $('reset').addEventListener('click', () => {
@@ -179,6 +169,6 @@ $('reset').addEventListener('click', () => {
   $('memory').open = false;
   saveProfile();
   render();
-  showStatus('Demo reset. Both feedback histories were cleared.');
+  showStatus('Demo reset. All feedback histories were cleared.');
 });
 render();
