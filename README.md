@@ -1,6 +1,6 @@
 # Afterbeat
 
-README prose word count: 530
+README prose word count: 507
 
 Afterbeat is a mobile-first prototype for comparing the duration of negative feedback. **Two choices** and **Single dislike** are the original A1 comparison. **Track or style** separately explores whether the same feedback should affect one song or a style.
 
