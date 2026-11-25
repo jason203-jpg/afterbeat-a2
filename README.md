@@ -46,7 +46,6 @@ node browser-check.cjs
 - [12838d6](https://github.com/jason203-jpg/afterbeat-a2/commit/12838d6) Connected a shared player to both versions and added feedback beside the player. Browser replay checked the three scenarios, reload persistence, mode isolation, cancellation, blocked storage and narrow layouts.
 - [b199e3f](https://github.com/jason203-jpg/afterbeat-a2/commit/b199e3f) Made browser replay wait for the current track's confirmation and checked that both A1 versions give persistent feedback the same ranking effect.
 - [692231c](https://github.com/jason203-jpg/afterbeat-a2/commit/692231c) Added distinct music previews and a separate style mode. Replay checked the different outcomes for Glass Hour and Low Tide, browser storage and playback.
-- The A2 Project Report PDF is the Canvas deliverable. Its system diagram and three storyboards can be read alongside the replay steps above.
 
 ## AI assistance
 
