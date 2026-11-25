@@ -1,6 +1,6 @@
 # Afterbeat
 
-README prose word count: 494
+README prose word count: 568
 
 Afterbeat is a mobile-first prototype for comparing the duration of negative feedback. **Two choices** and **Single dislike** are the original A1 comparison. **Track or style** separately explores whether the same feedback should affect one song or a style.
 
@@ -44,9 +44,12 @@ node browser-check.cjs
 
 - [162999b](https://github.com/jason203-jpg/afterbeat-a2/commit/162999b) Modelled session hides and saved track penalties independently. The state checks cover expiry, rank, undo, skip, exhausted catalogues and stored data.
 - [12838d6](https://github.com/jason203-jpg/afterbeat-a2/commit/12838d6) Connected a shared player to both versions and added feedback beside the player. Browser replay checked the three scenarios, reload persistence, mode isolation, cancellation, blocked storage and narrow layouts.
-- Added a separate style mode to keep the A1 comparison focused on duration. Checked the change against Glass Hour and Low Tide, tested saved history from earlier versions, and verified audio output in Chrome.
-- The companion A2 report contains screenshots and the system diagram.
+- [b199e3f](https://github.com/jason203-jpg/afterbeat-a2/commit/b199e3f) Made browser replay wait for the current track's confirmation and checked that both A1 versions give persistent feedback the same ranking effect.
+- [692231c](https://github.com/jason203-jpg/afterbeat-a2/commit/692231c) Added distinct music previews and a separate style mode. Replay checked the different outcomes for Glass Hour and Low Tide, browser storage and playback.
+- The A2 Project Report PDF is the Canvas deliverable. Its system diagram and three storyboards can be read alongside the replay steps above.
 
 ## AI assistance
 
-OpenAI Codex drafted the prototype, original music synthesis, tests, screenshots, report and documentation from the A1 research question. Checks included state assertions, browser replay and offline rendering of all six audio arrangements. A1 supplied the research framing and literature. No AI service is called during use.
+The student supplied the A1 research question and literature and requested distinct musical styles and a choice between track and style feedback. The extension was placed in a separate mode to preserve the A1 comparison about feedback duration.
+
+OpenAI Codex built the prototype and music synthesis and assisted with tests, screenshots, the report and this README. Codex checked all six audio previews, ran the eight state tests, and replayed the feedback flows in Chrome. One replay check was corrected to wait for the confirmation for the current track. The runtime uses a local ranking rule.
