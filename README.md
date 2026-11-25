@@ -50,6 +50,4 @@ node browser-check.cjs
 
 ## AI assistance
 
-The student supplied the A1 research question and literature and requested distinct musical styles and a choice between track and style feedback. The extension was placed in a separate mode to preserve the A1 comparison about feedback duration.
-
-OpenAI Codex built the prototype and music synthesis and assisted with tests, screenshots, the report and this README. Codex checked all six audio previews, ran the eight state tests, and replayed the feedback flows in Chrome. One replay check was corrected to wait for the confirmation for the current track. The runtime uses a local ranking rule.
+Codex helped build the prototype and music synthesis and assisted with tests, screenshots, the report and this README. I checked all six audio previews, ran the eight state tests, and replayed the feedback flows in Chrome. One replay check was corrected to wait for the confirmation for the current track. The runtime uses a local ranking rule.
